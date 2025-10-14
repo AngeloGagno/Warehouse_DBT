@@ -1,0 +1,19 @@
+[project]
+name = "airflow"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "angelogagno@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "pycryptodome (>=3.23.0,<4.0.0)",
+    "astronomer-cosmos (>=1.10.2,<2.0.0)",
+    "apache-airflow (>=3.1.0,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,133 @@
+version: 2
+
+sources:
+  - name: postgres_warehouse_dbt
+    schema: public
+    description: Tabelas do banco de dados
+    tables:
+      - name: clientes
+        description: "Modelo staging para a tabela de clientes. Dados padronizados de identificação e contato."
+        columns:
+          - name: id_customer
+            description: "ID único do cliente"
+            tests:
+              - unique
+              - not_null
+
+          - name: name_customer
+            description: "Nome completo do cliente"
+
+          - name: email_customer
+            description: "E-mail do cliente"
+            tests:
+              - not_null
+              - unique
+
+          - name: phonenum_customer
+            description: "Telefone/celular do cliente"
+
+          - name: etl_inserted_at
+            description: "Data de inserção dos dados"
+
+      - name: produtos
+        description: "Modelo staging para a tabela de produtos. Contém dados limpos e padronizados dos produtos."
+        columns:
+          - name: id_product
+            description: "ID único do produto"
+            tests:
+              - unique
+              - not_null
+
+          - name: name_product
+            description: "Nome do produto"
+
+          - name: department_product
+            description: "Setor/categoria do produto"
+            tests:
+              - accepted_values:
+                  values:
+                    - Alimentos
+                    - Bebidas
+                    - Higiene
+                    - Limpeza
+                    - Perfumaria
+                    - Eletrônicos
+                    - Eletroportáteis
+                    - Vestuário
+                    - Calçados
+                    - Papelaria
+                    - Pet
+                    - Brinquedos
+                    - Automotivo
+
+          - name: price_product
+            description: "Preço de compra do produto"
+            tests:
+              - not_null
+
+          - name: etl_inserted_at
+            description: "Data de inserção dos dados"
+
+      - name: matrizes
+        description: "Modelo staging para a tabela de matrizes (lojas-mãe)."
+        columns:
+          - name: id_headquarters
+            description: "ID único da matriz"
+            tests:
+              - unique
+              - not_null
+
+          - name: name_headquarters
+            description: "Nome da matriz"
+
+          - name: address_headquarters
+            description: "Endereço completo da matriz"
+
+          - name: etl_inserted_at
+            description: "Data de inserção dos dados"
+
+      - name: vendas
+        description: "Modelo staging para a tabela de vendas. Contém fatos de vendas com chaves de referência para cliente, produto e matriz."
+        columns:
+          - name: id_sales
+            description: "ID único da venda"
+            tests:
+              - unique
+              - not_null
+
+          - name: id_product
+            description: "Chave para o produto vendido"
+            tests:
+              - not_null
+              - relationships:
+                  to: ref('stg_produtos')
+                  field: id_produto
+
+          - name: sales_value
+            description: "Valor de venda (R$) do item"
+            tests:
+              - not_null
+
+          - name: id_headquarters
+            description: "Chave para a matriz (loja) onde ocorreu a venda"
+            tests:
+              - not_null
+              - relationships:
+                  to: ref('stg_matrizes')
+                  field: id_matriz
+
+          - name: id_customer
+            description: "Chave para o cliente que realizou a compra"
+            tests:
+              - not_null
+              - relationships:
+                  to: ref('stg_clientes')
+                  field: id_cliente
+
+          - name: sold_at
+            description: "Timestamp/data-hora em que a venda ocorreu"
+            tests:
+              - not_null
+              
+          - name: etl_inserted_at
+            description: "Data de inserção dos dados"
