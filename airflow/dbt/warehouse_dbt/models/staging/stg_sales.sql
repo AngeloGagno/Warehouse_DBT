@@ -3,7 +3,7 @@ with source as (
 ),
 rename_columns as (
     select
-    id_venda as id_sales,
+    id_venda as id_sale,
     id_produto as id_product,
     valor_vendido as sales_value,
     id_matriz as id_headquarters,
