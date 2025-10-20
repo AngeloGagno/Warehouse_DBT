@@ -1,0 +1,80 @@
+filebeat.inputs:
+  # 1) Logs de tarefas do Airflow (tasks)
+  - type: filestream
+    id: airflow-tasks
+    enabled: true
+    paths:
+      - /var/log/airflow/*/*/*/*.log
+      - /var/log/airflow/*/*/*.log
+    parsers:
+      - multiline:
+          type: pattern
+          pattern: '^\d{4}-\d{2}-\d{2}T'
+          negate: true
+          match: after
+    fields:
+      source: airflow
+      kind: task_log
+    fields_under_root: true
+
+  # 2) Logs do scheduler (se existirem como arquivos separados)
+  - type: filestream
+    id: airflow-scheduler
+    enabled: true
+    paths:
+      - /var/log/airflow/scheduler/*.log
+      - /var/log/airflow/scheduler/*.out
+    fields:
+      source: airflow
+      kind: scheduler_log
+    fields_under_root: true
+
+  # 3) Logs do webserver (se existirem como arquivos separados)
+  - type: filestream
+    id: airflow-webserver
+    enabled: true
+    paths:
+      - /var/log/airflow/webserver/*.log
+      - /var/log/airflow/webserver/*.out
+    fields:
+      source: airflow
+      kind: webserver_log
+    fields_under_root: true
+
+  # 4) Logs do dbt (dbt.log)
+  - type: filestream
+    id: dbt-log
+    enabled: true
+    paths:
+      - /var/dbt/**/target/logs/*.log
+      - /var/dbt/**/logs/*.log
+    fields:
+      source: dbt
+    fields_under_root: true
+
+  # 5) Artefatos do dbt (run_results.json, manifest.json)
+  - type: filestream
+    id: dbt-artifacts
+    enabled: true
+    paths:
+      - /var/dbt/**/target/run_results.json
+      - /var/dbt/**/target/manifest.json
+    fields:
+      source: dbt
+      kind: dbt_artifact
+    fields_under_root: true
+    processors:
+      - decode_json_fields:
+          fields: ["message"]
+          process_array: true
+          max_depth: 4
+          target: ""
+          overwrite_keys: true
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "obs-%{[source]}-%{+yyyy.MM.dd}"   # ex.: obs-airflow-2025.10.20
+
+# Sem setup automático (mais simples pra começar)
+setup.template.enabled: false
+setup.ilm.enabled: false

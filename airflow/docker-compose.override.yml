@@ -2,6 +2,8 @@ services:
   scheduler:
     volumes:
       - ./dbt/warehouse_dbt/:/usr/local/airflow/dbt/warehouse_dbt
+      - ./logs:/usr/local/airflow/logs
   dag-processor:
     volumes:
       - ./dbt/warehouse_dbt/:/usr/local/airflow/dbt/warehouse_dbt
+      - ./logs:/usr/local/airflow/logs
