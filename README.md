@@ -12,7 +12,7 @@ Além disso, a **observabilidade** é implementada com **ElasticSearch + Kibana*
 
 ## Arquitetura do Projeto
 
-![alt text](../images/projeto_end_to_end_dbt_airflow.png)
+![alt text](./images/projeto_end_to_end_dbt_airflow.png)
 
 O fluxo principal segue as seguintes etapas:
 
@@ -26,7 +26,7 @@ O fluxo principal segue as seguintes etapas:
 
 ## Dashboard Feito no Superset
 
-![alt text](../images/dashboard-financeiro.jpg)
+![alt text](./images/dashboard-financeiro.jpg)
 
 O dashboard apresenta métricas financeiras e operacionais derivadas das tabelas de fato e dimensão criadas no warehouse, permitindo análises de performance, margens, crescimento e comportamento de clientes.
 
