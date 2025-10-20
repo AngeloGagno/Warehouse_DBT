@@ -1,45 +1,166 @@
-Overview
-========
+# 🧩 Projeto Data Warehouse com DBT, Airflow e Observabilidade (Elastic Stack)
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+## 🎯 Objetivo do Projeto
 
-Project Contents
-================
+Criar uma **pipeline observável** onde há a **ingestão de dados** de um *database* para a criação de um **Data Warehouse** utilizando o **DBT (Data Build Tool)**.  
+O projeto abrange desde o tratamento dos dados **RAW** até a criação das **tabelas Fato e Dimensão**, bem como dos **KPIs** que podem ser consumidos diretamente da camada **Marts**, disponibilizados em um **Dashboard no Apache Superset**, fornecendo *insights* sobre os dados do banco.
 
-Your Astro project contains the following files and folders:
+A orquestração é realizada pelo **Apache Airflow**, utilizando o **DBT DAG** fornecido pelo **Cosmos da Astronomer**, garantindo controle, versionamento e execução automatizada.  
+Além disso, a **observabilidade** é implementada com **ElasticSearch + Kibana**, responsáveis por armazenar e visualizar os logs de execução do Airflow, permitindo o monitoramento em tempo real da performance das DAGs e transformações.
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+---
 
-Deploy Your Project Locally
-===========================
+## 🏗️ Arquitetura do Projeto
 
-Start Airflow on your local machine by running 'astro dev start'.
+![alt text](../images/projeto_end_to_end_dbt_airflow.png)
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+O fluxo principal segue as seguintes etapas:
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+1. **Ingestão de Dados:** Coleta e carga de dados brutos (RAW) de uma base relacional.  
+2. **Transformação (DBT):** Padronização e modelagem dos dados em camadas `staging`, `intermediate` e `marts`.  
+3. **Orquestração (Airflow):** Execução automatizada e monitorada das etapas com o `DbtDag` do **Cosmos/Astronomer**.  
+4. **Armazenamento e Observabilidade:** Logs de execução enviados ao **ElasticSearch**, visualizados no **Kibana**.  
+5. **Visualização (Superset):** Dashboards e KPIs consumindo diretamente a camada **Marts**.
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+---
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+## 📊 Dashboard Feito no Superset
 
-Deploy Your Project to Astronomer
-=================================
+![alt text](../images/dashboard-financeiro-2025-10-18T02-13-58.201Z.jpg)
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+O dashboard apresenta métricas financeiras e operacionais derivadas das tabelas de fato e dimensão criadas no warehouse, permitindo análises de performance, margens, crescimento e comportamento de clientes.
 
-Contact
-=======
+---
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+## 📁 Estrutura do Projeto
+
+A estrutura base é organizada da seguinte forma:
+
+```
+Warehouse_DBT/
+├── airflow/
+│   ├── dags/
+│   │   └── dbt_dag.py
+│   ├── include/
+│   ├── plugins/
+│   └── Dockerfile
+│
+├── dbt/
+│   ├── warehouse_dbt/
+│   │   ├── models/
+│   │   │   ├── staging/
+│   │   │   ├── intermediate/
+│   │   │   └── marts/
+│   │   ├── macros/
+│   │   └── dbt_project.yml
+│   └── logs/
+│   
+│
+├── observability/
+│   ├── docker-compose.yml
+│   └── filebeat.yml
+│
+├── images/
+│   ├── projeto_end_to_end_dbt_airflow.png
+│   └── dashboard-financeiro.jpg
+│
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+## 🚀 Como Executar
+
+### 🔧 Pré-requisitos
+
+Certifique-se de ter instalado:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Astronomer CLI (Astro)](https://www.astronomer.io/docs/astro/cli/overview)
+
+---
+
+### 1️⃣ Clone o repositório
+
+```bash
+git clone https://github.com/AngeloGagno/Warehouse_DBT
+cd Warehouse_DBT
+```
+
+---
+
+### 2️⃣ Verifique se o Docker está rodando corretamente
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+### 3️⃣ Instale o Astro (Astronomer CLI)
+
+#### Via pip:
+```bash
+pip install astro
+```
+
+#### Via brew (MacOS):
+```bash
+brew install astronomer/tap/astro
+```
+
+#### Verifique a instalação:
+```bash
+astro version
+```
+
+---
+
+### 4️⃣ Inicie o ambiente Airflow
+
+```bash
+astro dev start
+```
+
+> Isso irá subir o ambiente do **Airflow** em [http://localhost:8080](http://localhost:8080)
+
+---
+
+### 5️⃣ Inicie o container de Observabilidade
+
+```bash
+cd ./observability
+docker compose up -d
+```
+
+> Isso irá subir o **Kibana** em [http://localhost:5601](http://localhost:5601)
+
+---
+
+## 🔐 Variáveis e Credenciais Necessárias
+
+As credenciais são configuradas diretamente no **Airflow UI** como **Connections**, incluindo:
+
+- **Postgres Connection** (para o database de origem e warehouse)
+
+---
+
+## 📚 Referências
+
+- [Astronomer CLI](https://www.astronomer.io/docs/astro/cli/overview)  
+- [Apache Airflow](https://airflow.apache.org/docs/)  
+- [DBT Core](https://docs.getdbt.com/docs/introduction)  
+- [Elastic Stack](https://www.elastic.co/what-is/elk-stack)  
+
+---
+
+## 👤 Contato
+
+**Autor:** Angelo Gagno  
+📧 [angelogagno@gmail.com](mailto:angelogagno@gmail.com)  
+💼 [linkedin.com/in/angelogagno](https://linkedin.com/in/angelogagno)  
+🐙 [github.com/AngeloGagno](https://github.com/AngeloGagno)
+
